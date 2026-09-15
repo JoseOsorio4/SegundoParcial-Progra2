@@ -1,0 +1,20 @@
+# Archivos generados por Maven y Eclipse
+**/target/
+**/bin/
+.metadata/
+**/.settings/
+**/.classpath
+**/.project
+
+# Configuración local y credenciales
+.env
+.env.*
+!.env.example
+**/db-local.properties
+
+# Herramientas y cachés locales
+.tools/
+.tmp/
+.maven-repository/
+*.log
+Thumbs.db
