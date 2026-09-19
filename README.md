@@ -56,48 +56,54 @@ integrado en Eclipse m2e. El segundo caso guarda dependencias en
 
 ## Uso
 
-- **Guardar cita** registra los datos en estado Pendiente.
+- **Guardar cita** registra una nueva cita. Toda cita nueva se guarda automáticamente en estado **Pendiente**.
 - Fecha y hora: `dd/MM/aaaa HH:mm`, por ejemplo `20/09/2026 14:30`.
-- Selecciona una fila para habilitar **Guardar cambios** y **Eliminar**.
-- Para cancelar, selecciona **Cancelada** y pulsa **Guardar cambios**: conserva la fila.
-- **Eliminar** pide confirmación y borra físicamente la fila seleccionada.
-- **Nueva cita** limpia el formulario y prepara otro registro.
-- **Refrescar** consulta MySQL. Las cabeceras permiten ordenar.
-- La búsqueda filtra el listado; doble clic en una fila muestra su detalle.
-
+- Al seleccionar una fila de la tabla, la cita se carga en el formulario y se habilita el modo de edición.
+- **Actualizar** guarda los cambios realizados sobre la cita seleccionada.
+- Durante la edición se puede cambiar el estado a **Pendiente**, **Confirmada** o **Cancelada**.
+- Para cancelar una cita sin eliminarla, selecciona **Cancelada** y pulsa **Actualizar**. La cita permanece almacenada en MySQL.
+- **Eliminar** solicita confirmación y borra físicamente el registro seleccionado.
+- **Nuevo / Limpiar** abandona el modo de edición y prepara el formulario para registrar una nueva cita.
+- **Refrescar** vuelve a consultar los registros almacenados en MySQL.
+- Las cabeceras de la tabla permiten ordenar los registros.
+- Un clic sobre una fila permite editarla y un **doble clic** abre una ventana con el detalle completo de la cita.
 ## Organización
 
 ```text
-pom.xml                         Padre Maven, packaging pom
+pom.xml                         Proyecto padre Maven, packaging pom
+
 agenda-citas-core/
-  pom.xml                       Librería JAR y pruebas
+  pom.xml                       Módulo librería JAR
   src/main/java/.../
     modelo/                     Cita y EstadoCita
-    config/                     Configuración y conexiones
-    dao/                        JDBC y mapeo de filas
-    servicio/                   Validación y operaciones de negocio
-    excepcion/                  Errores de aplicación
+    config/                     Configuración de la conexión a MySQL
+    dao/                        Operaciones JDBC y mapeo de registros
+    servicio/                   Validaciones y reglas de negocio
+    excepcion/                  Excepciones controladas de la aplicación
+  src/test/java/.../            Pruebas unitarias del servicio
+
 agenda-citas-ui/
-  pom.xml                       Dependencia de core y JAR ejecutable
-  sql/schema.sql                Esquema comentado
+  pom.xml                       Módulo Swing que depende de core
+  sql/schema.sql                Creación y estructura de la base de datos
   src/main/java/.../
-    MainUI.java                 Inicio de la aplicación
-    ui/                         JFrame, formulario y modelo de JTable
-```
+    MainUI.java                 Punto de inicio de la aplicación
+    ui/
+      VentanaPrincipal.java     Ventana principal, formulario y JTable
+      ModeloTablaCitas.java     Modelo utilizado por la tabla
+      DetalleCitaDialog.java    Ventana con el detalle de una cita
+      Estilos.java              Estilos reutilizables de Swing
+      IconoVector.java          Iconos utilizados por la interfaz
 
-Flujo: **formulario → servicio → DAO → MySQL → resultado en pantalla**.
-Core no importa Swing; UI no importa JDBC. El servicio transforma las excepciones
-SQL en mensajes de aplicación. SwingWorker ejecuta JDBC fuera del hilo gráfico.
+scripts/
+  maven.ps1                     Localiza y ejecuta Maven
+  PruebaPersistencia.java       Pruebas opcionales contra MySQL real
+  PruebaInterfaz.java           Pruebas opcionales de Swing + MySQL
 
-Una tabla con ID INT AUTO_INCREMENT, cliente VARCHAR(100), servicio VARCHAR(255),
-fecha/hora local DATETIME, duración INT y estado ENUM. Todas las columnas son
-obligatorias; CHECK respalda textos no vacíos y duración positiva.
-El script SQL explica las decisiones.
-
-El servicio valida antes del DAO: textos vacíos o largos, duración positiva,
-estado permitido y fecha representable en MySQL. La fecha pasada se rechaza
-al **crear**; editar el estado de una cita histórica está permitido.
-Las citas nuevas siempre quedan Pendientes.
+compilar.cmd                    Compila, prueba e instala los módulos Maven
+ejecutar.cmd                    Ejecuta el JAR de la aplicación
+probar-bd.cmd                   Ejecuta la prueba de persistencia
+probar-ui.cmd                   Ejecuta la prueba de interfaz
+db-example.properties           Ejemplo de configuración de conexión
 
 ## Comprobaciones
 
