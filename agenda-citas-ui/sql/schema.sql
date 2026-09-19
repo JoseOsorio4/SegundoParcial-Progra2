@@ -2,6 +2,7 @@
 -- Ejecutar en MySQL Workbench. El script conserva los datos existentes.
 CREATE DATABASE IF NOT EXISTS segundo_parcial_progra2
     CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 USE segundo_parcial_progra2;
 
 -- Una sola tabla cubre la entidad solicitada. El servicio es texto libre.
@@ -10,6 +11,7 @@ USE segundo_parcial_progra2;
 -- DATETIME conserva fecha y hora local del negocio juntas, sin conversión de zona.
 -- INT para minutos enteros; CHECK y el servicio Java exigen duración positiva.
 -- ENUM restringe los tres estados también al escribir directamente en la BD.
+-- BOOLEAN guarda si la cita requiere confirmación por llamada.
 -- NOT NULL impide ausencias; TRIM en CHECK evita nombres/descripciones vacíos.
 -- La fecha futura se valida en Java AL CREAR: una cita guardada puede envejecer.
 CREATE TABLE IF NOT EXISTS citas (
@@ -19,6 +21,7 @@ CREATE TABLE IF NOT EXISTS citas (
     servicio VARCHAR(255) NOT NULL,
     duracion_minutos INT NOT NULL,
     estado ENUM('pendiente', 'confirmada', 'cancelada') NOT NULL DEFAULT 'pendiente',
+    requiere_confirmacion_llamada BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id),
     CONSTRAINT chk_citas_cliente CHECK (CHAR_LENGTH(TRIM(cliente)) > 0),
     CONSTRAINT chk_citas_servicio CHECK (CHAR_LENGTH(TRIM(servicio)) > 0),
