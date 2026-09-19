@@ -3,7 +3,9 @@ package edu.umg.programacion2.proyecto.servicio;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -47,6 +49,29 @@ public class CitaServicio {
         return ejecutar(
                 dao::listarTodos,
                 "No se pudo cargar el listado de citas.");
+    }
+
+    /**
+     * Agrupa las citas por servicio y cuenta cuántas existen de cada uno.
+     * El cálculo se realiza completamente en Java recorriendo listarTodos().
+     * No utiliza GROUP BY en SQL.
+     */
+    public Map<String, Integer> contarPorServicio() {
+
+        List<Cita> citas = listarTodos();
+
+        Map<String, Integer> conteo = new LinkedHashMap<>();
+
+        for (Cita cita : citas) {
+
+            String servicio = cita.getServicio();
+
+            conteo.put(
+                    servicio,
+                    conteo.getOrDefault(servicio, 0) + 1);
+        }
+
+        return conteo;
     }
 
     public Optional<Cita> buscarPorId(int id) {
