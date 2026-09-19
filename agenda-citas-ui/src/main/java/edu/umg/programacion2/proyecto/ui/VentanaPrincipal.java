@@ -27,6 +27,7 @@ import java.time.format.ResolverStyle;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -126,6 +127,15 @@ public final class VentanaPrincipal extends JFrame {
                     Estilos.PRIMARIO,
                     false);
 
+    private final JButton botonResumen =
+            new Estilos.Boton(
+                    "Resumen por servicio",
+                    IconoVector.Tipo.ETIQUETA,
+                    Estilos.PRIMARIO,
+                    Estilos.PRIMARIO_HOVER,
+                    Color.WHITE,
+                    true);
+
     private final JLabel tituloFormulario = new JLabel("Nueva cita");
     private final JLabel etiquetaModo = new JLabel();
     private final JLabel etiquetaTotal = new JLabel("0 citas");
@@ -204,7 +214,7 @@ public final class VentanaPrincipal extends JFrame {
     }
 
     // ------------------------------------------------------------------
-    // Construcción de la interfaz (capa visual)
+    // Construcción de la interfaz
     // ------------------------------------------------------------------
 
     private void construirInterfaz() {
@@ -554,8 +564,7 @@ public final class VentanaPrincipal extends JFrame {
 
         campoCliente
                 .getAccessibleContext()
-                .setAccessibleName(
-                        "Cliente");
+                .setAccessibleName("Cliente");
 
         campoFechaHora
                 .getAccessibleContext()
@@ -564,18 +573,15 @@ public final class VentanaPrincipal extends JFrame {
 
         campoServicio
                 .getAccessibleContext()
-                .setAccessibleName(
-                        "Servicio");
+                .setAccessibleName("Servicio");
 
         campoDuracion
                 .getAccessibleContext()
-                .setAccessibleName(
-                        "Duración en minutos");
+                .setAccessibleName("Duración en minutos");
 
         campoEstado
                 .getAccessibleContext()
-                .setAccessibleName(
-                        "Estado de la cita");
+                .setAccessibleName("Estado de la cita");
 
         campoRequiereConfirmacion
                 .getAccessibleContext()
@@ -759,6 +765,10 @@ public final class VentanaPrincipal extends JFrame {
                         .deriveFont(12.5f));
 
         acciones.add(etiquetaTotal);
+
+        // Mejora #10: acceso al conteo realizado con Map<String, Integer>.
+        acciones.add(botonResumen);
+
         acciones.add(botonRefrescar);
 
         cabecera.add(
@@ -853,7 +863,8 @@ public final class VentanaPrincipal extends JFrame {
                 165,
                 220,
                 90,
-                130
+                130,
+                110
         };
 
         for (int i = 0; i < anchos.length; i++) {
@@ -987,6 +998,9 @@ public final class VentanaPrincipal extends JFrame {
         botonRefrescar.setName(
                 "botonRefrescar");
 
+        botonResumen.setName(
+                "botonResumen");
+
         botonNuevo.addActionListener(
                 evento -> {
 
@@ -1011,6 +1025,9 @@ public final class VentanaPrincipal extends JFrame {
                 evento ->
                         refrescarLista(
                                 "Listado actualizado."));
+
+        botonResumen.addActionListener(
+                evento -> mostrarResumenPorServicio());
 
         tabla
                 .getSelectionModel()
@@ -1050,6 +1067,57 @@ public final class VentanaPrincipal extends JFrame {
                             }
                         }
                     }
+                });
+    }
+
+    /**
+     * Muestra la mejora #10.
+     *
+     * El conteo se genera en CitaServicio recorriendo listarTodos()
+     * y utilizando Map<String, Integer>, sin GROUP BY.
+     */
+    private void mostrarResumenPorServicio() {
+
+        ejecutar(
+                "Calculando resumen por servicio…",
+                servicio::contarPorServicio,
+                conteo -> {
+
+                    if (conteo.isEmpty()) {
+
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "No hay citas registradas para generar el resumen.",
+                                "Resumen por servicio",
+                                JOptionPane.INFORMATION_MESSAGE);
+
+                        etiquetaEstado.setText(
+                                "No hay citas para resumir.");
+
+                        return;
+                    }
+
+                    StringBuilder resumen =
+                            new StringBuilder();
+
+                    for (Map.Entry<String, Integer> entrada
+                            : conteo.entrySet()) {
+
+                        resumen
+                                .append(entrada.getKey())
+                                .append(": ")
+                                .append(entrada.getValue())
+                                .append('\n');
+                    }
+
+                    JOptionPane.showMessageDialog(
+                            this,
+                            resumen.toString(),
+                            "Resumen por servicio",
+                            JOptionPane.INFORMATION_MESSAGE);
+
+                    etiquetaEstado.setText(
+                            "Resumen por servicio generado.");
                 });
     }
 
@@ -1711,6 +1779,9 @@ public final class VentanaPrincipal extends JFrame {
                         && editando);
 
         botonRefrescar.setEnabled(
+                !ocupado);
+
+        botonResumen.setEnabled(
                 !ocupado);
 
         getRootPane().setDefaultButton(
