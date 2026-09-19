@@ -11,13 +11,27 @@ import edu.umg.programacion2.proyecto.modelo.EstadoCita;
 
 /** Conserva los tipos de los datos para ordenar correctamente fechas y números. */
 public final class ModeloTablaCitas extends AbstractTableModel {
+
     private static final long serialVersionUID = 1L;
+
     private static final String[] COLUMNAS = {
-        "ID", "Cliente", "Fecha y hora", "Servicio", "Duración", "Estado"
+        "ID",
+        "Cliente",
+        "Fecha y hora",
+        "Servicio",
+        "Duración",
+        "Estado",
+        "Confirmación"
     };
+
     private static final Class<?>[] TIPOS = {
-        Integer.class, String.class, LocalDateTime.class, String.class,
-        Integer.class, EstadoCita.class
+        Integer.class,
+        String.class,
+        LocalDateTime.class,
+        String.class,
+        Integer.class,
+        EstadoCita.class,
+        Boolean.class
     };
 
     private final List<Cita> citas = new ArrayList<>();
@@ -59,15 +73,34 @@ public final class ModeloTablaCitas extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int fila, int columna) {
+
         Cita cita = citas.get(fila);
+
         switch (columna) {
-            case 0: return cita.getId();
-            case 1: return cita.getCliente();
-            case 2: return cita.getFechaHora();
-            case 3: return cita.getServicio();
-            case 4: return cita.getDuracionMinutos();
-            case 5: return cita.getEstado();
-            default: throw new IndexOutOfBoundsException("Columna inexistente: " + columna);
+            case 0:
+                return cita.getId();
+
+            case 1:
+                return cita.getCliente();
+
+            case 2:
+                return cita.getFechaHora();
+
+            case 3:
+                return cita.getServicio();
+
+            case 4:
+                return cita.getDuracionMinutos();
+
+            case 5:
+                return cita.getEstado();
+
+            case 6:
+                return cita.isRequiereConfirmacionLlamada();
+
+            default:
+                throw new IndexOutOfBoundsException(
+                        "Columna inexistente: " + columna);
         }
     }
 }
